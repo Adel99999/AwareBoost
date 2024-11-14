@@ -1,11 +1,12 @@
 ﻿namespace AwareBoost.Models
 {
-    public class Tags
+    public class Category
     {
         public Guid Id { get; set; }
-        public string TagName { get; set; }
+        public string Name { get; set; }
 
-        // Navigation Property 
+        //Navigation Properties 
         public ICollection<Questions> Questions { get; set; }
     }
 }
+
