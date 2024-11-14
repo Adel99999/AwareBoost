@@ -1,0 +1,6 @@
+@AwareBoost_HostAddress = http://localhost:5030
+
+GET {{AwareBoost_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
