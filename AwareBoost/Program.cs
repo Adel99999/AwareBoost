@@ -1,6 +1,7 @@
 using AwareBoost.Data;
 using AwareBoost.Mappings;
 using AwareBoost.Models;
+using AwareBoost.UnitOfWork;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -17,6 +18,9 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddDbContext<AppDbContext>
 (options => options.UseSqlServer(builder.Configuration.GetConnectionString("AwareBoostConnectionString")));
+
+
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 
 builder.Services.AddIdentity<AppUsers, IdentityRole>()

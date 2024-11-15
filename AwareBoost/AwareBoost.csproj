@@ -22,10 +22,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\" />
-    <Folder Include="CustomActionFilter\" />
     <Folder Include="Middlewares\" />
-    <Folder Include="UnitOfWork\" />
-    <Folder Include="Services\" />
   </ItemGroup>
 
 </Project>
