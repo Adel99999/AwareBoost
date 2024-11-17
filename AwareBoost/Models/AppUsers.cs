@@ -8,6 +8,9 @@ namespace AwareBoost.Models
     {
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        public string RefreshToken { get; set; } = string.Empty;
+        public DateTime TokenCreated { get; set; }
+        public DateTime TokenExpires { get; set; }
 
         // Navigation Properties
         public ICollection<Upvote> Upvotes { get; set; }

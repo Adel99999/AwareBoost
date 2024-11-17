@@ -15,5 +15,7 @@ namespace AwareBoost.UnitOfWork
         IUpvoteRepo UpvoteRepo { get; }
         IUserBadgesRepo UserBadgesRepo { get; }
         IViewsRepo ViewsRepo { get; }
+
+        ITokenRepository TokenRepository { get; }
     }
 }
