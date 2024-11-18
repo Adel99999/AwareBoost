@@ -4,6 +4,7 @@
     {
         public Guid Id { get; set; }
         public string Title { get; set; }
+        public string Content { get; set; }
         public DateTime Created_At { get; set; }
         public string AppUserId { get; set; }
         public Guid? CategoryId { get; set; }

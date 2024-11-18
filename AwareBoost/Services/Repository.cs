@@ -29,9 +29,18 @@ namespace AwareBoost.Services
             return await query.ToListAsync();
         }
 
-        public async Task<T?> GetAsync(Expression<Func<T, bool>> filter)
+        public async Task<T?> GetAsync(
+       Expression<Func<T, bool>> filter,
+       Func<IQueryable<T>, IQueryable<T>>? include = null)
         {
-            return await _dbSet.FirstOrDefaultAsync(filter);
+            IQueryable<T> query = _dbSet;
+
+            if (include != null)
+            {
+                query = include(query); // Apply Includes
+            }
+
+            return await query.FirstOrDefaultAsync(filter);
         }
 
         public async Task AddAsync(T entity)

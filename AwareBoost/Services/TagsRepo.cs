@@ -1,6 +1,7 @@
 ﻿using AwareBoost.Data;
 using AwareBoost.Models;
 using AwareBoost.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace AwareBoost.Services
 {
@@ -16,5 +17,13 @@ namespace AwareBoost.Services
             _db.Tags.Update(tag);
             await _db.SaveChangesAsync();
         }
+
+        public async Task<List<Tags>> GetTagsByNamesAsync(List<string> tagNames)
+        {
+            return await _db.Tags
+                .Where(t => tagNames.Contains(t.TagName))
+                .ToListAsync();
+        }
+
     }
 }

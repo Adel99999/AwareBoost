@@ -22,8 +22,12 @@ namespace AwareBoost.Services
         public string CreateJwtToken(IdentityUser user, List<string> roles)
         {
             // Create Claims
-            var claims = new List<Claim>();
-            claims.Add(new Claim(ClaimTypes.Email, user.Email));
+            var claims = new List<Claim>
+            {
+              new Claim(ClaimTypes.NameIdentifier, user.Id), // Add User ID
+              new Claim(ClaimTypes.Email, user.Email)       // Add Email
+            };
+
             foreach (var role in roles)
             {
                 claims.Add(new Claim(ClaimTypes.Role, role));
@@ -32,11 +36,16 @@ namespace AwareBoost.Services
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
             var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
             var token = new JwtSecurityToken(
-                _config["Jwt:Issuer"], _config["Jwt:Audience"]
-                , claims, expires: DateTime.Now.AddMinutes(15),
+                _config["Jwt:Issuer"],
+                _config["Jwt:Audience"],
+                claims,
+                expires: DateTime.Now.AddMinutes(15),
                 signingCredentials: credentials);
+
             return new JwtSecurityTokenHandler().WriteToken(token);
         }
+
+
 
         public RefreshToken GenerateRefreshToken()
         {

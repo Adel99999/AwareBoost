@@ -2,9 +2,12 @@
 using AwareBoost.Helpers;
 using AwareBoost.Models;
 using AwareBoost.Repository;
+using AwareBoost.UnitOfWork;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AwareBoost.Controllers
 {
@@ -13,11 +16,11 @@ namespace AwareBoost.Controllers
     public class AuthController : ControllerBase
     {
         private readonly UserManager<AppUsers> _userManager;
-        private readonly ITokenRepository _tokenRepository;
-        public AuthController(UserManager<AppUsers> userManager, ITokenRepository tokenRepository)
+        private readonly IUnitOfWork _unitOfWork;
+        public AuthController(UserManager<AppUsers> userManager, IUnitOfWork tokenRepository)
         {
             _userManager = userManager;
-            _tokenRepository = tokenRepository;
+            _unitOfWork = tokenRepository;
         }
 
         [HttpPost]
@@ -60,13 +63,13 @@ namespace AwareBoost.Controllers
                     var roles = await _userManager.GetRolesAsync(user);
 
                     // Create JWT token
-                    var jwtToken = _tokenRepository.CreateJwtToken(user, roles.ToList());
+                    var jwtToken = _unitOfWork.TokenRepository.CreateJwtToken(user, roles.ToList());
 
                     // Generate a refresh token
-                    var refreshToken = _tokenRepository.GenerateRefreshToken();
+                    var refreshToken = _unitOfWork.TokenRepository.GenerateRefreshToken();
 
                     // Set the refresh token in the response cookies (secure cookie)
-                    _tokenRepository.SetRefreshToken(refreshToken);
+                    _unitOfWork.TokenRepository.SetRefreshToken(refreshToken);
 
 
                     // Update user with the new refresh token details
@@ -84,5 +87,21 @@ namespace AwareBoost.Controllers
             // If the user is not found or the password is incorrect
             return BadRequest("Invalid login attempt.");
         }
+
+        [HttpPost]
+        [Route("Logout")]
+        public IActionResult Logout()
+        {
+            // Remove refresh token from cookies
+            if (Request.Cookies["refreshToken"] != null)
+            {
+                Response.Cookies.Delete("refreshToken");
+            }
+
+            return Ok("Logged out successfully.");
+        }
+
+
+
     }
 }
