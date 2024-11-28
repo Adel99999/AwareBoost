@@ -1,6 +1,7 @@
 ﻿using AwareBoost.Data;
 using AwareBoost.Models;
 using AwareBoost.Repository;
+using Microsoft.EntityFrameworkCore;
 
 namespace AwareBoost.Services
 {
@@ -10,6 +11,11 @@ namespace AwareBoost.Services
         public UpvoteRepo(AppDbContext db) : base(db)
         {
             _db = db;
+        }
+
+        public async Task<int> CountUpvotesByAnswerIdAsync(Guid answerId)
+        {
+            return await _db.Upvote.CountAsync(a => a.AnswerId == answerId);
         }
     }
 }

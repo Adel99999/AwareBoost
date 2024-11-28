@@ -41,25 +41,35 @@ namespace AwareBoost.Controllers
 
             return Ok(questionsDto);
         }
-
         [Route("{id}")]
         [HttpGet]
         public async Task<IActionResult> GetQuestion(Guid id)
         {
-
             var question = await _unitOfWork.QuestionsRepo.GetAsync(
-               q => q.Id == id,
-               include: q => q.Include(q => q.User)
-                              .Include(q => q.Category));
+                q => q.Id == id,
+                include: q => q.Include(q => q.User)
+                               .Include(q => q.Category)
+            );
+
             if (question == null)
             {
                 return NotFound(new { Message = "Question not found" });
             }
 
-           
             var answers = await _unitOfWork.AnswerRepo.GetAnswersByQuestionIdAsync(id);
 
-            
+            // Use Task.WhenAll to handle async calls in the Select
+            var answersDto = await Task.WhenAll(
+                answers.Select(async a => new AnswerDto
+                {
+                    Id = a.Id,
+                    Answer = a.Answer,
+                    Created_At = a.Created_At,
+                    UserName = a.User.UserName,
+                    UpvotesCount = await _unitOfWork.UpvoteRepo.CountUpvotesByAnswerIdAsync(a.Id),
+                })
+            );
+
             var questionDto = new DetailedQuestionDto
             {
                 Id = question.Id,
@@ -68,13 +78,7 @@ namespace AwareBoost.Controllers
                 Created_At = question.Created_At,
                 UserName = question.User.UserName,
                 CategoryName = question.Category.Name,
-                Answers = answers.Select(a => new AnswerDto
-                {
-                    Id = a.Id,
-                    Answer = a.Answer,
-                    Created_At = a.Created_At,
-                    UserName = a.User.UserName
-                }).ToList()
+                Answers = answersDto.ToList()
             };
 
             return Ok(questionDto);
@@ -88,15 +92,16 @@ namespace AwareBoost.Controllers
         public async Task<IActionResult> AddQuestion([FromBody] AddQuestionRequestDto requestDto)
         {
 
-            var userId = Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
  
             var question = new Questions
             {
+                Id=Guid.NewGuid(),
                 Title = requestDto.Title,
                 Content = requestDto.Content,
                 Created_At = DateTime.UtcNow,
-                AppUserId = userId.ToString(), 
+                AppUserId = userId, 
                 CategoryId = requestDto.CategoryId
             };
 

@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace AwareBoost.Migrations
 {
     /// <inheritdoc />
-    public partial class initial : Migration
+    public partial class resetInitial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -31,6 +33,9 @@ namespace AwareBoost.Migrations
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETUTCDATE()"),
+                    RefreshToken = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    TokenCreated = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    TokenExpires = table.Column<DateTime>(type: "datetime2", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -78,15 +83,15 @@ namespace AwareBoost.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QuestionsTags",
+                name: "RefreshTokens",
                 columns: table => new
                 {
-                    QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    Token = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    Expires = table.Column<DateTime>(type: "datetime2", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuestionsTags", x => new { x.QuestionId, x.TagId });
                 });
 
             migrationBuilder.CreateTable(
@@ -262,6 +267,7 @@ namespace AwareBoost.Migrations
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Created_At = table.Column<DateTime>(type: "datetime2", nullable: false),
                     AppUserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     CategoryId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
@@ -309,24 +315,24 @@ namespace AwareBoost.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "QuestionTags",
+                name: "QuestionsTags",
                 columns: table => new
                 {
-                    QuestionsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    TagsId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
+                    QuestionId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    TagId = table.Column<Guid>(type: "uniqueidentifier", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_QuestionTags", x => new { x.QuestionsId, x.TagsId });
+                    table.PrimaryKey("PK_QuestionsTags", x => new { x.QuestionId, x.TagId });
                     table.ForeignKey(
-                        name: "FK_QuestionTags_Questions_QuestionsId",
-                        column: x => x.QuestionsId,
+                        name: "FK_QuestionsTags_Questions_QuestionId",
+                        column: x => x.QuestionId,
                         principalTable: "Questions",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_QuestionTags_Tags_TagsId",
-                        column: x => x.TagsId,
+                        name: "FK_QuestionsTags_Tags_TagId",
+                        column: x => x.TagId,
                         principalTable: "Tags",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -400,6 +406,16 @@ namespace AwareBoost.Migrations
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "2d15548c-31b1-4a36-a231-16de6a482862", "2d15548c-31b1-4a36-a231-16de6a482862", "Admin", "ADMIN" },
+                    { "8f2da2d1-415e-4d5f-b997-846a32c990ae", "8f2da2d1-415e-4d5f-b997-846a32c990ae", "User", "USER" },
+                    { "A3B6BDFD-04AF-4809-B9A3-009589CCD2B6", "A3B6BDFD-04AF-4809-B9A3-009589CCD2B6", "SpecialUser", "SPECIALUSER" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -482,9 +498,9 @@ namespace AwareBoost.Migrations
                 column: "CategoryId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_QuestionTags_TagsId",
-                table: "QuestionTags",
-                column: "TagsId");
+                name: "IX_QuestionsTags_TagId",
+                table: "QuestionsTags",
+                column: "TagId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Upvote_AnswerId",
@@ -540,7 +556,7 @@ namespace AwareBoost.Migrations
                 name: "QuestionsTags");
 
             migrationBuilder.DropTable(
-                name: "QuestionTags");
+                name: "RefreshTokens");
 
             migrationBuilder.DropTable(
                 name: "Upvote");

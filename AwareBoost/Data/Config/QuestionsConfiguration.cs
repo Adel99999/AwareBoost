@@ -1,4 +1,5 @@
 ﻿using AwareBoost.Models;
+using Azure;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -22,10 +23,18 @@ namespace AwareBoost.Data.Config
                    .HasForeignKey(q => q.CategoryId) // Foreign key is CategoryId
                    .OnDelete(DeleteBehavior.SetNull); // If Category is deleted, set CategoryId to null
             builder.HasMany(q => q.Tags)
-                  .WithMany(t => t.Questions)
-                  .UsingEntity(j => j.ToTable("QuestionTags")); // This is the join table name
-
-
+           .WithMany(t => t.Questions)
+           .UsingEntity<Dictionary<string, object>>(
+               "QuestionsTags", // Join table name
+            j => j.HasOne<Tags>() // Configure the relationship to Tags
+                    .WithMany()
+                    .HasForeignKey("TagId")
+                    .OnDelete(DeleteBehavior.Cascade),
+               j => j.HasOne<Questions>() // Configure the relationship to Questions
+                    .WithMany()
+                    .HasForeignKey("QuestionId")
+                    .OnDelete(DeleteBehavior.Cascade));
+            
         }
     }
 }

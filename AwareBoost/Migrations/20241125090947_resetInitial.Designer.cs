@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace AwareBoost.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20241117123541_editSomeThings")]
-    partial class editSomeThings
+    [Migration("20241125090947_resetInitial")]
+    partial class resetInitial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -243,6 +243,10 @@ namespace AwareBoost.Migrations
                     b.Property<Guid?>("CategoryId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<DateTime>("Created_At")
                         .HasColumnType("datetime2");
 
@@ -257,19 +261,6 @@ namespace AwareBoost.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Questions");
-                });
-
-            modelBuilder.Entity("AwareBoost.Models.QuestionsTags", b =>
-                {
-                    b.Property<Guid>("QuestionId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("TagId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("QuestionId", "TagId");
-
-                    b.ToTable("QuestionsTags");
                 });
 
             modelBuilder.Entity("AwareBoost.Models.RefreshToken", b =>
@@ -522,17 +513,17 @@ namespace AwareBoost.Migrations
 
             modelBuilder.Entity("QuestionsTags", b =>
                 {
-                    b.Property<Guid>("QuestionsId")
+                    b.Property<Guid>("QuestionId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.Property<Guid>("TagsId")
+                    b.Property<Guid>("TagId")
                         .HasColumnType("uniqueidentifier");
 
-                    b.HasKey("QuestionsId", "TagsId");
+                    b.HasKey("QuestionId", "TagId");
 
-                    b.HasIndex("TagsId");
+                    b.HasIndex("TagId");
 
-                    b.ToTable("QuestionTags", (string)null);
+                    b.ToTable("QuestionsTags");
                 });
 
             modelBuilder.Entity("AwareBoost.Models.Answers", b =>
@@ -710,13 +701,13 @@ namespace AwareBoost.Migrations
                 {
                     b.HasOne("AwareBoost.Models.Questions", null)
                         .WithMany()
-                        .HasForeignKey("QuestionsId")
+                        .HasForeignKey("QuestionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("AwareBoost.Models.Tags", null)
                         .WithMany()
-                        .HasForeignKey("TagsId")
+                        .HasForeignKey("TagId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

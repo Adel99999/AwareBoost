@@ -15,7 +15,6 @@ namespace AwareBoost.Data
         public DbSet<Category> Category { get; set; }
         public DbSet<Comments> Comments { get; set; }
         public DbSet<Followers> Followers { get; set; }
-        public DbSet<QuestionsTags> QuestionsTags { get; set; }
         public DbSet<Tags> Tags { get; set; }
         public DbSet<Upvote> Upvote { get; set; }
         public DbSet<UserBadges> UserBadges { get; set; }
